@@ -24,7 +24,9 @@
           </td>
           <td><div class="goods-detail">
             <img class="goods-img":src="item.img"/>
-            {{item.name}}{{item.detail}}
+            <div class="goods-info"><b>{{item.name}}</b>
+              <div class="goods-info-detail">{{item.detail}}</div>
+            </div>
           </div></td>
           <td>
             <div class="number">
@@ -60,11 +62,11 @@ export default {
     return {
       checkData:[],
       goodsList:[
-        {index: 0, name: 'apple', img:'/img/goods.jpg',price: 14, num: 0},
-        {index: 1, name: 'banana', img:'/img/goods.jpg',price: 8, num: 0},
-        {index: 2, name: 'orange', img:'/img/goods.jpg',price: 3, num: 0},
-        {index: 3, name: 'kk', img:'/img/goods.jpg',price: 3, num: 0},
-        {index: 4, name: 'yyy', img:'/img/goods.jpg',price: 3, num: 0}
+        {index: 0, name: 'apple', img:'/img/goods.jpg', detail:'产地：澳大利亚 净重：100g', price: 14, num: 0},
+        {index: 1, name: 'banana', img:'/img/goods.jpg', detail:'产地：澳大利亚 净重：100g', price: 8, num: 0},
+        {index: 2, name: 'orange', img:'/img/goods.jpg', detail:'产地：澳大利亚 净重：100g', price: 3, num: 0},
+        {index: 3, name: 'kk', img:'/img/goods.jpg', detail:'产地：澳大利亚 净重：100g', price: 3, num: 0},
+        {index: 4, name: 'yyy', img:'/img/goods.jpg', detail:'产地：澳大利亚 净重：100g', price: 3, num: 0}
       ],
       totalPrice:0
     }
@@ -197,15 +199,29 @@ export default {
     border-color:#D5D5D5;
     border-style:solid;
   }
+  .detail .goods-detail{
+    display:flex;
+    align-items:center;
+  }
   .detail .goods-img{
+    border:1px solid #cecece;
+    margin:2px;
     width:100px;
     height:100px;
+  }
+  .detail .goods-info{
+    margin:0 20px;
+    max-width:300px;
+  }
+  .detail .goods-info .goods-info-detail{
+    margin:5px 0;
+    text-overflow: ellipsis;
   }
   .detail .number{
     display:flex;
     justify-content: space-around;
     margin:5px auto;
-    width:50px;
+    width:80px;
     border-top:1px;
     border-right:1px;
     border-bottom:0;
