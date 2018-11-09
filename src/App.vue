@@ -16,10 +16,10 @@
         <td><span>操作</span></td>
         </thead>
         <tbody class="table-detail">
-        <tr class="table-detail-row" v-for="item in goodsList" :key="item.index">
+        <tr class="table-detail-row" v-for="(item,index) in goodsList" :key="item.index">
           <td>
             <label>
-              <input class="checkItem" type="checkbox" :value="item.name" v-model="checkData"/>
+              <input class="checkItem" type="checkbox" :value="item.name" v-model="goodsList[index].isChecked"/>
             </label>
           </td>
           <td><div class="goods-detail">
@@ -30,25 +30,25 @@
           </div></td>
           <td>
             <div class="number">
-              <span style="cursor: pointer;" @click="minus(item.name)">-</span>
+              <span style="cursor: pointer;" @click="minus(index)">-</span>
                 {{item.num}}
-              <span style="cursor: pointer;" @click="add(item.name)">+</span>
+              <span style="cursor: pointer;" @click="add(index)">+</span>
             </div>
           </td>
           <td><div class="price">￥{{item.price}}</div></td>
           <td><div class="pertotal">￥{{item.price*item.num}}</div></td>
-          <td @click="deleteItemGroup(item.name)"><span class="del">删除</span></td>
+          <td @click="deleteItemGroup(index)"><span class="del">删除</span></td>
         </tr>
         </tbody>
       </table>
     </div>
     <div class="operation">
       <div class="delete-and-continue">
-        <span class="delete-pick-all" @click="deleteItemGroups(checkData)">删除所选商品</span>
+        <span class="delete-pick-all" @click="deleteItemGroups()">删除所选商品</span>
         <span class="continue">继续购物</span>
       </div>
       <div class="total-and-pay">
-        <span class="total">{{checkData.length}}件商品总计（不含运费）：<span class="total-price">￥{{totalPrice}}元</span></span>
+        <span class="total">{{checkedNum}}件商品总计（不含运费）：<span class="total-price">￥{{totalPrice}}元</span></span>
         <div class="pay">去结算</div>
       </div>
     </div>
@@ -60,25 +60,29 @@ export default {
   name: 'app',
   data: function () {
     return {
-      checkData:[],
+      checkedNum:0,
       goodsList:[
-        {index: 0, name: 'apple', img:'/img/goods.jpg', detail:'产地：澳大利亚 净重：100g', price: 14, num: 0},
-        {index: 1, name: 'banana', img:'/img/goods.jpg', detail:'产地：澳大利亚 净重：100g', price: 8, num: 0},
-        {index: 2, name: 'orange', img:'/img/goods.jpg', detail:'产地：澳大利亚 净重：100g', price: 3, num: 0},
-        {index: 3, name: 'kk', img:'/img/goods.jpg', detail:'产地：澳大利亚 净重：100g', price: 3, num: 0},
-        {index: 4, name: 'yyy', img:'/img/goods.jpg', detail:'产地：澳大利亚 净重：100g', price: 3, num: 0}
+        {index: 0, name: 'apple', img:'/img/goods.jpg', detail:'产地：澳大利亚 净重：100g', price: 14, num: 0 , isChecked:false},
+        {index: 1, name: 'banana', img:'/img/goods.jpg', detail:'产地：澳大利亚 净重：100g', price: 8, num: 0 , isChecked:false},
+        {index: 2, name: 'orange', img:'/img/goods.jpg', detail:'产地：澳大利亚 净重：100g', price: 3, num: 0 , isChecked:false},
+        {index: 3, name: 'kk', img:'/img/goods.jpg', detail:'产地：澳大利亚 净重：100g', price: 3, num: 0 , isChecked:false},
+        {index: 4, name: 'yyy', img:'/img/goods.jpg', detail:'产地：澳大利亚 净重：100g', price: 3, num: 0 , isChecked:false}
       ],
       totalPrice:0
     }
   },
   watch: {
-    checkData: {
+    goodsList: {
       handler(){
-        if(this.checkData.length === this.goodsList.length&&this.checkData.length!=0&&this.goodsList.length!=0){
+        let checkTag=this.goodsList.filter(function(item){
+          return item.isChecked===true;
+        });
+        if(checkTag.length===this.goodsList.length&&this.goodsList.length!=0){
           document.querySelector('#all').checked = true;
-        }else {
+        }else{
           document.querySelector('#all').checked = false;
-        }
+        };
+        this.checkedNum=checkTag.length;
         this.getTotal()
       },
       deep: true
@@ -88,65 +92,49 @@ export default {
     checkAll(e) {
       if (e.target.checked) {
         this.goodsList.forEach((item, index) => {
-          if (this.checkData.indexOf(item.name) == '-1') {
-            this.checkData.push(item.name);
-          }
-        });
-      } else {
-        this.checkData = [];
-      }
-    },
-    add:function(name){
-      this.goodsList.forEach((item)=>{
-        if(item.name===name){
-          item.num++;
-        }
-      })
-      this.getTotal()
-    },
-    minus:function(name){
-      this.goodsList.forEach((item)=>{
-        if(item.name===name&&item.num>0){
-          item.num--;
-        }
-      })
-      this.getTotal();
-    },
-    deleteItemGroup:function(name){
-      this.goodsList.forEach((item,index)=> {
-        if (item.name === name) {
-          this.goodsList.splice(index, 1)
-          this.checkData.splice(this.checkData.indexOf(name), 1)
-        }
-      })
-      this.getTotal()
-    },
-    deleteItemGroups:function(names){
-      this.goodsList.forEach((item,index)=>{
-        names.forEach((name)=>{
-          if(item.name===name){
-            this.goodsList.splice(index,1)
-            this.checkData.splice(this.checkData.indexOf(name),1)
-            names=this.checkData
-            if(names.length>0){
-              this.deleteItemGroups(names)//暂时想到的是重新循环执行一次，避免数组变动影响splice方法执行的结果
-              return;//减少this.getTotal()的开销
-            }
+          if(item.isChecked===false){
+            item.isChecked=true
           }
         })
+      }else{
+        this.goodsList.forEach((item, index) => {
+          item.isChecked=false
+        })
+      }
+    },
+    add:function(index){
+      this.goodsList[index].num++;
+      this.getTotal()
+    },
+    minus:function(index){
+      if(this.goodsList[index].num>0){
+        this.goodsList[index].num--;
+      }
+      this.getTotal();
+    },
+    deleteItemGroup:function(index){
+      this.goodsList.splice(index,1)
+      this.getTotal()
+    },
+    deleteItemGroups:function(){
+      let checkDeleteList=this.goodsList.filter(function(item){
+        return item.isChecked===true;
+      })
+      checkDeleteList.forEach(item=>{
+        this.goodsList.splice(this.goodsList.indexOf(item),1)
       })
       this.getTotal()
     },
     getTotal:function(){
       this.totalPrice=0;
       let perTotalPrice;
-      this.goodsList.forEach((item) => {
-        this.checkData.forEach((name)=>{
-          if(item.name===name){
-            perTotalPrice=item.num*item.price;
-            this.totalPrice=this.totalPrice+perTotalPrice;
-          }
-        })
+      let purchaseList=this.goodsList.filter(function(item){
+        return item.isChecked===true;
+      })
+      purchaseList.forEach(item=>{
+        perTotalPrice=item.price*item.num;
+        this.totalPrice=this.totalPrice+perTotalPrice;
+        perTotalPrice=0;
       })
     }
   }
