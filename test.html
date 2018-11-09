@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>test</title>
+  <script src="https://cdn.bootcss.com/vue/2.5.17-beta.0/vue.min.js"></script>
+</head>
+
+<body>
+<div id="content" >
+  <div><input type="checkbox" v-model="isAllCheck"/>全选<div>
+    <div v-for="item in dataList"><input type="checkbox" v-model="item.isCheck"/>{{item.name}}<div>
+    </div>
+      <script>
+        new Vue({
+          el:'#content',
+          data: {
+            dataList:[
+              {isCheck:false, name:'选项一'},
+              {isCheck:false, name:'选项二'},
+              {isCheck:false, name:'选项三'},
+            ],
+          },
+          computed:{
+            isAllCheck: function(){
+              let dataList = this.dataList,
+                isAllCheck = true;
+              for(var item of dataList){
+                if(!item.isCheck){
+                  return false;
+                }
+              }
+              return true;
+            }
+          }
+        });
+      </script>
+</body>
+</html>

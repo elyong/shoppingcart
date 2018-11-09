@@ -6,7 +6,7 @@
         <thead class="table-title">
         <td>
           <label for="all">
-            <input id="all" type="checkbox" @click="checkAll($event)"/> 全选
+            <input id="all" type="checkbox" v-model="allChecked"/> 全选
           </label>
         </td>
         <td><div class="table-head">商品</div></td>
@@ -16,10 +16,10 @@
         <td><span>操作</span></td>
         </thead>
         <tbody class="table-detail">
-        <tr class="table-detail-row" v-for="(item,index) in goodsList" :key="item.index">
+        <tr class="table-detail-row" v-for="(item,index) in goodsList" :key="item.name">
           <td>
             <label>
-              <input class="checkItem" type="checkbox" :value="item.name" v-model="goodsList[index].isChecked"/>
+              <input class="checkItem" type="checkbox" v-model="goodsList[index].isChecked"/>
             </label>
           </td>
           <td><div class="goods-detail">
@@ -48,7 +48,7 @@
         <span class="continue">继续购物</span>
       </div>
       <div class="total-and-pay">
-        <span class="total">{{checkedNum}}件商品总计（不含运费）：<span class="total-price">￥{{totalPrice}}元</span></span>
+        <span class="total">{{checkedNum}}件商品总计（不含运费）：<span class="total-price">￥{{getTotal}}元</span></span>
         <div class="pay">去结算</div>
       </div>
     </div>
@@ -60,83 +60,66 @@ export default {
   name: 'app',
   data: function () {
     return {
-      checkedNum:0,
+      allChecked:false,
       goodsList:[
         {index: 0, name: 'apple', img:'/img/goods.jpg', detail:'产地：澳大利亚 净重：100g', price: 14, num: 0 , isChecked:false},
         {index: 1, name: 'banana', img:'/img/goods.jpg', detail:'产地：澳大利亚 净重：100g', price: 8, num: 0 , isChecked:false},
         {index: 2, name: 'orange', img:'/img/goods.jpg', detail:'产地：澳大利亚 净重：100g', price: 3, num: 0 , isChecked:false},
         {index: 3, name: 'kk', img:'/img/goods.jpg', detail:'产地：澳大利亚 净重：100g', price: 3, num: 0 , isChecked:false},
         {index: 4, name: 'yyy', img:'/img/goods.jpg', detail:'产地：澳大利亚 净重：100g', price: 3, num: 0 , isChecked:false}
-      ],
-      totalPrice:0
+      ]
     }
   },
-  watch: {
-    goodsList: {
+  computed:{
+    checkedNum(){
+      let tmpCheckedNum=0;
+      this.goodsList.forEach(item=>{
+        if(item.isChecked===true)
+          tmpCheckedNum=tmpCheckedNum+1
+      })
+      return tmpCheckedNum;
+    },
+    getTotal(){
+      let totalPrice=0;
+      let perTotalPrice;
+      let purchaseList=this.goodsList.filter(item=>item.isChecked)
+      purchaseList.forEach(item=>{
+        perTotalPrice=item.price*item.num;
+        totalPrice=totalPrice+perTotalPrice;
+        perTotalPrice=0;
+      })
+      return totalPrice;
+    }
+  },
+  watch:{
+    goodsList:{
       handler(){
-        let checkTag=this.goodsList.filter(function(item){
-          return item.isChecked===true;
-        });
-        if(checkTag.length===this.goodsList.length&&this.goodsList.length!=0){
-          document.querySelector('#all').checked = true;
-        }else{
-          document.querySelector('#all').checked = false;
-        };
-        this.checkedNum=checkTag.length;
-        this.getTotal()
+        let checkList=this.goodsList.filter(item=>item.isChecked)
+        if(checkList.length===this.goodsList.length)
+          this.allChecked=true
+        else
+          this.allChecked=false
       },
-      deep: true
+      deep:true
     }
   },
   methods: {
-    checkAll(e) {
-      if (e.target.checked) {
-        this.goodsList.forEach((item, index) => {
-          if(item.isChecked===false){
-            item.isChecked=true
-          }
-        })
-      }else{
-        this.goodsList.forEach((item, index) => {
-          item.isChecked=false
-        })
-      }
-    },
     add:function(index){
       this.goodsList[index].num++;
-      this.getTotal()
+
     },
     minus:function(index){
-      if(this.goodsList[index].num>0){
+      if(this.goodsList[index].num>0)
         this.goodsList[index].num--;
-      }
-      this.getTotal();
     },
     deleteItemGroup:function(index){
       this.goodsList.splice(index,1)
-      this.getTotal()
     },
     deleteItemGroups:function(){
-      let checkDeleteList=this.goodsList.filter(function(item){
-        return item.isChecked===true;
-      })
-      checkDeleteList.forEach(item=>{
-        this.goodsList.splice(this.goodsList.indexOf(item),1)
-      })
-      this.getTotal()
+      let newGoodsList=this.goodsList.filter(item=>!item.isChecked)
+      this.goodsList=newGoodsList
     },
-    getTotal:function(){
-      this.totalPrice=0;
-      let perTotalPrice;
-      let purchaseList=this.goodsList.filter(function(item){
-        return item.isChecked===true;
-      })
-      purchaseList.forEach(item=>{
-        perTotalPrice=item.price*item.num;
-        this.totalPrice=this.totalPrice+perTotalPrice;
-        perTotalPrice=0;
-      })
-    }
+
   }
 }
 
