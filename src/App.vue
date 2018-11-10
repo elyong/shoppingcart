@@ -23,7 +23,7 @@
             </label>
           </td>
           <td><div class="goods-detail">
-            <img class="goods-img":src="item.img"/>
+            <img class="goods-img" :src="item.img"/>
             <div class="goods-info"><b>{{item.name}}</b>
               <div class="goods-info-detail">{{item.detail}}</div>
             </div>
@@ -60,7 +60,6 @@ export default {
   name: 'app',
   data: function () {
     return {
-      allChecked:false,
       goodsList:[
         {index: 0, name: 'apple', img:'/img/goods.jpg', detail:'产地：澳大利亚 净重：100g', price: 14, num: 0 , isChecked:false},
         {index: 1, name: 'banana', img:'/img/goods.jpg', detail:'产地：澳大利亚 净重：100g', price: 8, num: 0 , isChecked:false},
@@ -71,46 +70,53 @@ export default {
     }
   },
   computed:{
+    allChecked:{
+      get(){
+        let checkedList=this.goodsList.filter(item=>item.isChecked)
+        if(checkedList.length===this.goodsList.length)
+          return true
+        else
+          return false
+      },
+      set(newValue){
+        if(newValue){
+          this.goodsList.forEach(item=>{
+            item.isChecked=true;
+          })
+        }else{
+          this.goodsList.forEach(item=>{
+            item.isChecked=false;
+          })
+        }
+      }
+    },
     checkedNum(){
       let tmpCheckedNum=0;
       this.goodsList.forEach(item=>{
         if(item.isChecked===true)
-          tmpCheckedNum=tmpCheckedNum+1
+          tmpCheckedNum++
       })
-      return tmpCheckedNum;
+      return tmpCheckedNum
     },
     getTotal(){
       let totalPrice=0;
       let perTotalPrice;
       let purchaseList=this.goodsList.filter(item=>item.isChecked)
       purchaseList.forEach(item=>{
-        perTotalPrice=item.price*item.num;
-        totalPrice=totalPrice+perTotalPrice;
-        perTotalPrice=0;
+        perTotalPrice=item.price*item.num
+        totalPrice+=perTotalPrice
+        perTotalPrice=0
       })
-      return totalPrice;
-    }
-  },
-  watch:{
-    goodsList:{
-      handler(){
-        let checkList=this.goodsList.filter(item=>item.isChecked)
-        if(checkList.length===this.goodsList.length)
-          this.allChecked=true
-        else
-          this.allChecked=false
-      },
-      deep:true
+      return totalPrice
     }
   },
   methods: {
     add:function(index){
-      this.goodsList[index].num++;
-
+      this.goodsList[index].num++
     },
     minus:function(index){
       if(this.goodsList[index].num>0)
-        this.goodsList[index].num--;
+        this.goodsList[index].num--
     },
     deleteItemGroup:function(index){
       this.goodsList.splice(index,1)
@@ -119,7 +125,6 @@ export default {
       let newGoodsList=this.goodsList.filter(item=>!item.isChecked)
       this.goodsList=newGoodsList
     },
-
   }
 }
 
