@@ -73,7 +73,7 @@ export default {
     allChecked:{
       get(){
         let checkedList=this.goodsList.filter(item=>item.isChecked)
-        if(checkedList.length===this.goodsList.length)
+        if(checkedList.length===this.goodsList.length&&checkedList.length!=0)
           return true
         else
           return false
